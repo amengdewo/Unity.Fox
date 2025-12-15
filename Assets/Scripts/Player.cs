@@ -38,16 +38,22 @@ public class Player : MonoBehaviour
         if (!isHurt)
         {
             Movement();
+            Jump();
         }
         SwithAnimation();
     }
 
+    void Update()
+    {
+        Crouch();
+    }
+
+    // 移动
     void Movement()
     {
         float horizontal = Input.GetAxis("Horizontal");
         float direction = Input.GetAxisRaw("Horizontal");
 
-        // 移动
         if (horizontal != 0)
         {
             rb.velocity = new Vector2(horizontal * speed * Time.fixedDeltaTime, rb.velocity.y);
@@ -57,16 +63,22 @@ public class Player : MonoBehaviour
         {
             transform.localScale = new Vector3(direction, 1, 1);
         }
+    }
 
-        // 跳跃
+    // 跳跃
+    void Jump()
+    {
         if (Input.GetButton("Jump") && coll.IsTouchingLayers(ground))
         {
             jumpSound.Play();
             rb.velocity = new Vector2(rb.velocity.x, jumpForce * Time.fixedDeltaTime);
             animator.SetBool("jumping", true);
         }
+    }
 
-        // 蹲下
+    // 蹲下
+    void Crouch()
+    {
         if (!Physics2D.OverlapCircle(ceilingPoint.position, 0.2f, ground))
         {
             if (Input.GetButton("Crouch") && coll.IsTouchingLayers(ground))
@@ -85,8 +97,6 @@ public class Player : MonoBehaviour
 
     void SwithAnimation()
     {
-        animator.SetBool("idle", false);
-
         if (rb.velocity.y < 0.1f && !coll.IsTouchingLayers(ground))
         {
             animator.SetBool("falling", true);
@@ -106,13 +116,11 @@ public class Player : MonoBehaviour
             {
                 isHurt = false;
                 animator.SetBool("hurting", false);
-                animator.SetBool("idle", true);
                 animator.SetFloat("running", 0);
             }
         } else if (coll.IsTouchingLayers(ground))
         {
             animator.SetBool("falling", false);
-            animator.SetBool("idle", true);
         }
     }
 
@@ -122,9 +130,7 @@ public class Player : MonoBehaviour
         if (collision.tag == "Collection")
         {
             cherrySound.Play();
-            Destroy(collision.gameObject);
-            cherry++;
-            cherryNumber.text = cherry.ToString();
+            collision.GetComponent<Animator>().Play("Got");
         }
         if (collision.tag == "DeadLine")
         {
@@ -162,5 +168,11 @@ public class Player : MonoBehaviour
     void Restart()
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void CherryCount()
+    {
+        cherry++;
+        cherryNumber.text = cherry.ToString();
     }
 }
