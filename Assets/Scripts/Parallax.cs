@@ -4,19 +4,28 @@ using UnityEngine;
 
 public class Parallax : MonoBehaviour
 {
-    public Transform camera;
+    public Transform cam;
     public float moveRate;
-    
+    public bool lockY;
+
     [Space]
-    private float startPoint;
+    private float startPointX;
+    private float startPointY;
 
     void Start()
     {
-        startPoint = transform.position.x;
+        startPointX = transform.position.x;
+        startPointY = transform.position.y;
     }
 
     void Update()
     {
-        transform.position = new Vector3(startPoint + camera.position.x * moveRate, transform.position.y, transform.position.z);    
+        if (lockY)
+        {
+            transform.position = new Vector2(startPointX + cam.position.x * moveRate, transform.position.y);    
+        } else
+        {
+            transform.position = new Vector2(startPointX + cam.position.x * moveRate, startPointX + cam.position.y * moveRate);    
+        }
     }
 }

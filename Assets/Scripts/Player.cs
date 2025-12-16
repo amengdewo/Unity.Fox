@@ -17,13 +17,17 @@ public class Player : MonoBehaviour
     public AudioSource hurtSound;
     public AudioSource cherrySound;
     public Transform ceilingPoint;
+    public Transform groundPoint;
+
     [Space]
     public float speed = 400;
     public float jumpForce = 50;
     public int cherry = 0;
     public int gem = 0;
     public Text cherryNumber;
-    public bool isHurt = false;
+    private bool isHurt = false;
+    private bool isGround = false;
+    private int extraJump = 0;
 
     void Start()
     {
@@ -38,14 +42,16 @@ public class Player : MonoBehaviour
         if (!isHurt)
         {
             Movement();
-            Jump();
+            // Jump();
         }
         SwithAnimation();
+        isGround = Physics2D.OverlapCircle(groundPoint.position, 0.2f, ground);
     }
 
     void Update()
     {
         Crouch();
+        Jump2();
     }
 
     // 移动
@@ -70,8 +76,30 @@ public class Player : MonoBehaviour
     {
         if (Input.GetButton("Jump") && coll.IsTouchingLayers(ground))
         {
-            jumpSound.Play();
             rb.velocity = new Vector2(rb.velocity.x, jumpForce * Time.fixedDeltaTime);
+            jumpSound.Play();
+            animator.SetBool("jumping", true);
+        }
+    }
+
+    // 二段跳
+    void Jump2()
+    {
+        if (isGround)
+        {
+            extraJump = 1;
+        }
+        if (Input.GetButtonDown("Jump") && extraJump > 0)
+        {
+            rb.velocity = Vector2.up * jumpForce;
+            extraJump--;
+            jumpSound.Play();
+            animator.SetBool("jumping", true);
+        }
+        if (Input.GetButtonDown("Jump") && extraJump == 0 && isGround)
+        {
+            rb.velocity = Vector2.up * jumpForce;
+            jumpSound.Play();
             animator.SetBool("jumping", true);
         }
     }
@@ -85,12 +113,10 @@ public class Player : MonoBehaviour
             {
                 animator.SetBool("crouching", true);
                 box.enabled = false;
-                // box.offset = new Vector2(box.offset.x, -0.6f);
             } else
             {
                 animator.SetBool("crouching", false);
                 box.enabled = true;
-                // box.offset = new Vector2(box.offset.x, -0.1f);
             }
         }
     }
@@ -149,7 +175,7 @@ public class Player : MonoBehaviour
             if (animator.GetBool("falling"))
             {
                 enemy.JumpOn();
-                rb.velocity = new Vector2(rb.velocity.x, jumpForce * Time.fixedDeltaTime);
+                rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                 animator.SetBool("jumping", true);
             } else if (transform.position.x < collision.gameObject.transform.position.x)
             {
