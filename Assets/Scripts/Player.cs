@@ -13,9 +13,9 @@ public class Player : MonoBehaviour
     public Collider2D coll;
     public BoxCollider2D box;
     public LayerMask ground;
-    public AudioSource jumpSound;
-    public AudioSource hurtSound;
-    public AudioSource cherrySound;
+    // public AudioSource jumpSound;
+    // public AudioSource hurtSound;
+    // public AudioSource cherrySound;
     public Transform ceilingPoint;
     public Transform groundPoint;
 
@@ -77,7 +77,8 @@ public class Player : MonoBehaviour
         if (Input.GetButton("Jump") && coll.IsTouchingLayers(ground))
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce * Time.fixedDeltaTime);
-            jumpSound.Play();
+            SoundManager.instance.JumpSound();
+            // jumpSound.Play();
             animator.SetBool("jumping", true);
         }
     }
@@ -93,13 +94,15 @@ public class Player : MonoBehaviour
         {
             rb.velocity = Vector2.up * jumpForce;
             extraJump--;
-            jumpSound.Play();
+            // jumpSound.Play();
+            SoundManager.instance.JumpSound();
             animator.SetBool("jumping", true);
         }
         if (Input.GetButtonDown("Jump") && extraJump == 0 && isGround)
         {
             rb.velocity = Vector2.up * jumpForce;
-            jumpSound.Play();
+            // jumpSound.Play();
+            SoundManager.instance.JumpSound();
             animator.SetBool("jumping", true);
         }
     }
@@ -155,12 +158,13 @@ public class Player : MonoBehaviour
     {
         if (collision.tag == "Collection")
         {
-            cherrySound.Play();
+            // cherrySound.Play();
+            SoundManager.instance.CherrySound();
             collision.GetComponent<Animator>().Play("Got");
         }
         if (collision.tag == "DeadLine")
         {
-            GetComponent<AudioSource>().enabled = false;
+            // GetComponent<AudioSource>().enabled = false;
             Invoke("Restart", 2f);
         }
     }
@@ -179,12 +183,14 @@ public class Player : MonoBehaviour
                 animator.SetBool("jumping", true);
             } else if (transform.position.x < collision.gameObject.transform.position.x)
             {
-                hurtSound.Play();
+                // hurtSound.Play();
+                SoundManager.instance.HurtSound();
                 rb.velocity = new Vector2(-10, rb.velocity.y);
                 isHurt = true;
             } else if (transform.position.x > collision.gameObject.transform.position.x)
             {
-                hurtSound.Play();
+                // hurtSound.Play();
+                SoundManager.instance.HurtSound();
                 rb.velocity = new Vector2(10, rb.velocity.y);
                 isHurt = true;
             }
